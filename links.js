@@ -7,7 +7,7 @@ window.LINKS = [
     url: 'https://felixrieseberg.com/how-to-be-more-ambitious-a-tutorial-for-humans-with-models/',
     title: 'How to be more ambitious: a tutorial for humans with models',
     domain: 'felixrieseberg.com',
-    note: 'Felix Rieseberg (works on Claude) splits ambition into Speed, Altitude, Depth and Range. Altitude: ask for the outcome, not the task — “keep our apps crash-free”, not “fix this crash”; tell left for when you’d otherwise have meetings about it. Depth: insist on the instruments real experts use (databases and statistical models, not markdown tables), set an unreasonable target and call it reasonable, and make the model adversarially re-derive what you believe from raw data. Not model-specific.',
+    note: 'Felix Rieseberg (works on Claude) splits ambition into Speed, Altitude, Depth and Range. Altitude: ask for the outcome, not the task — “keep our apps crash-free”, not “fix this crash”; a good sign it applies is when you’d otherwise hold meetings about the work. Depth: insist on the instruments real experts use (databases and statistical models, not markdown tables), set an unreasonable target and insist it is reasonable, and make the model adversarially re-derive what you believe from raw data. Not model-specific.',
     tags: ['ai', 'agents', 'workflow', 'reading'],
     added: '2026-10-31'
   },
