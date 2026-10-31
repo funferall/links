@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f6f1e7">
+<title>Commonplace</title>
+<style>
+:root{
+  --paper:#f6f1e7; --paper2:#efe7d8; --ink:#17140f; --faint:#6f6858;
+  --line:#dcd3c0; --rust:#8c3b1e; --rust-soft:#b4613f;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font:17px/1.55 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  background-image:radial-gradient(circle at 12% -10%,#fffdf7 0%,transparent 55%),
+                   radial-gradient(circle at 88% 0%,#f2ead9 0%,transparent 50%);
+}
+.wrap{max-width:760px;margin:0 auto;padding:38px 22px 90px}
+
+header{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap}
+h1{font-size:30px;line-height:1.1;margin:0;letter-spacing:-.015em;font-weight:600}
+h1 em{font-style:italic;color:var(--rust)}
+.count{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.sub{margin:8px 0 0;color:var(--faint);font-size:15px;font-style:italic}
+
+.rule{height:1px;background:var(--line);margin:22px 0 16px}
+
+.searchrow{display:flex;gap:10px;align-items:center}
+input[type=search]{
+  flex:1;min-width:0;font:inherit;font-size:16px;color:var(--ink);
+  background:transparent;border:0;border-bottom:1.5px solid var(--line);
+  padding:8px 2px;outline:none;border-radius:0
+}
+input[type=search]:focus{border-bottom-color:var(--rust)}
+input[type=search]::placeholder{color:#a89e8a;font-style:italic}
+
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 4px}
+.chip{
+  font:inherit;font-size:12px;letter-spacing:.06em;text-transform:lowercase;
+  color:var(--faint);background:transparent;border:1px solid var(--line);
+  border-radius:999px;padding:4px 11px;cursor:pointer;transition:.15s
+}
+.chip:hover{border-color:var(--rust-soft);color:var(--rust)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+ol.list{list-style:none;margin:6px 0 0;padding:0}
+li.entry{padding:20px 0;border-bottom:1px solid var(--line);display:block}
+li.entry:last-child{border-bottom:0}
+.titlerow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+a.title{
+  color:var(--ink);text-decoration:none;font-size:20px;line-height:1.25;
+  border-bottom:2px solid rgba(140,59,30,.22);padding-bottom:1px
+}
+a.title:hover{color:var(--rust);border-bottom-color:var(--rust)}
+.domain{font-size:12.5px;color:var(--faint);letter-spacing:.04em}
+.note{margin:7px 0 0;color:#3c362c;font-size:15.5px}
+.meta{margin:9px 0 0;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:#948a74}
+.meta .tag{color:var(--rust);letter-spacing:.13em}
+.meta .dot{color:var(--line)}
+
+.empty{padding:40px 0;color:var(--faint);font-style:italic}
+footer{margin-top:34px;font-size:13px;color:var(--faint);font-style:italic}
+footer a{color:var(--rust)}
+
+@media (max-width:520px){
+  .wrap{padding:28px 18px 70px}
+  h1{font-size:26px}
+  a.title{font-size:18.5px}
+  .note{font-size:15px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Common<em>place</em></h1>
+    <p class="sub">a shelf of links worth going back to</p>
+  </div>
+  <div class="count" id="count"></div>
+</header>
+
+<div class="rule"></div>
+
+<div class="searchrow">
+  <input id="q" type="search" placeholder="search titles, notes, tags…" aria-label="Search links" autocomplete="off">
+</div>
+<div class="chips" id="chips"></div>
+
+<ol class="list" id="list"></ol>
+<p class="empty" id="empty" hidden>Nothing on the shelf matches that.</p>
+
+<footer>
+  Kept in <a href="https://github.com/funferall/links">links.js</a> — say “save this” to Thoth in Discord and it lands here.
+</footer>
+</div>
+
+<script src="links.js"></script>
+<script>
+(function(){
+  var all = window.LINKS || [];
+  var q = document.getElementById('q'),
+      listEl = document.getElementById('list'),
+      chipsEl = document.getElementById('chips'),
+      countEl = document.getElementById('count'),
+      emptyEl = document.getElementById('empty'),
+      tag = '';
+
+  all.sort(function(a,b){ return (b.added||'').localeCompare(a.added||''); });
+
+  function tagsOf(){
+    var s = {};
+    all.forEach(function(e){ (e.tags||[]).forEach(function(t){ s[t]=(s[t]||0)+1; }); });
+    return Object.keys(s).sort(function(a,b){ return s[b]-s[a] || a.localeCompare(b); });
+  }
+
+  function buildChips(){
+    var tags = tagsOf();
+    if(tags.length < 2) return; // no chip row for a one-link shelf
+    chipsEl.innerHTML = '';
+    [''].concat(tags).forEach(function(t){
+      var b = document.createElement('button');
+      b.className = 'chip'; b.type = 'button';
+      b.textContent = t || 'everything';
+      b.setAttribute('aria-pressed', String(t === tag));
+      b.onclick = function(){ tag = (tag === t ? '' : t); render(); };
+      chipsEl.appendChild(b);
+    });
+  }
+
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return '&#'+c.charCodeAt(0)+';';}); }
+
+  function render(){
+    var term = q.value.trim().toLowerCase();
+    var shown = all.filter(function(e){
+      if(tag && (e.tags||[]).indexOf(tag) < 0) return false;
+      if(!term) return true;
+      var hay = [e.title, e.domain, e.url, e.note].concat(e.tags||[]).join(' ').toLowerCase();
+      return hay.indexOf(term) >= 0;
+    });
+
+    listEl.innerHTML = shown.map(function(e){
+      var meta = (e.tags||[]).map(function(t){ return '<span class="tag">'+esc(t)+'</span>'; }).join('<span class="dot">·</span>');
+      var date = e.added ? '<span class="dot">·</span><span>kept '+esc(e.added)+'</span>' : '';
+      return '<li class="entry">'
+        + '<div class="titlerow"><a class="title" href="'+esc(e.url)+'" target="_blank" rel="noopener">'+esc(e.title)+'</a>'
+        + '<span class="domain">'+esc(e.domain || '')+'</span></div>'
+        + (e.note ? '<p class="note">'+esc(e.note)+'</p>' : '')
+        + (meta || date ? '<p class="meta">'+meta+date+'</p>' : '')
+        + '</li>';
+    }).join('');
+
+    countEl.textContent = all.length + (all.length === 1 ? ' link' : ' links');
+    emptyEl.hidden = shown.length > 0;
+    document.querySelectorAll('.chip').forEach(function(b,i){
+      var val = i === 0 ? '' : b.textContent;
+      b.setAttribute('aria-pressed', String(val === tag));
+    });
+  }
+
+  q.addEventListener('input', render);
+  document.addEventListener('keydown', function(e){
+    if(e.key === '/' && document.activeElement !== q){ e.preventDefault(); q.focus(); }
+    if(e.key === 'Escape' && document.activeElement === q){ q.value=''; render(); q.blur(); }
+  });
+
+  buildChips();
+  render();
+})();
+</script>
+</body>
+</html>
