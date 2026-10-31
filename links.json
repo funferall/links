@@ -1,6 +1,15 @@
 {
-  "updated": "2026-10-31T01:30:00Z",
+  "updated": "2026-10-31T20:05:00Z",
   "links": [
+    {
+      "id": "brick",
+      "url": "https://getbrick.com/",
+      "title": "Brick",
+      "domain": "getbrick.com",
+      "note": "A small NFC puck you tap on your phone to block the apps that eat the day — one tap to brick it, one tap to unblock. Physical, so it can't be talked out of like a settings screen can; there are family and organisation versions. Direct-to-consumer Shopify store, so read the marketing with a pinch of salt. Saved 31 Oct 2026 at M's request, still unread.",
+      "tags": ["screen time", "focus", "hardware"],
+      "added": "2026-10-31"
+    },
     {
       "id": "ambitious-with-models",
       "url": "https://felixrieseberg.com/how-to-be-more-ambitious-a-tutorial-for-humans-with-models/",
