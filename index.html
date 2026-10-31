@@ -7,7 +7,7 @@
 <title>Commonplace</title>
 <style>
 :root{
-  --paper:#f6f1e7; --paper2:#efe7d8; --ink:#17140f; --faint:#6f6858;
+  --paper:#f6f1e7; --ink:#17140f; --faint:#6f6858;
   --line:#dcd3c0; --rust:#8c3b1e; --rust-soft:#b4613f;
 }
 *{box-sizing:border-box}
@@ -27,7 +27,6 @@ h1 em{font-style:italic;color:var(--rust)}
 .sub{margin:8px 0 0;color:var(--faint);font-size:15px;font-style:italic}
 
 .rule{height:1px;background:var(--line);margin:22px 0 16px}
-
 .searchrow{display:flex;gap:10px;align-items:center}
 input[type=search]{
   flex:1;min-width:0;font:inherit;font-size:16px;color:var(--ink);
@@ -38,8 +37,9 @@ input[type=search]:focus{border-bottom-color:var(--rust)}
 input[type=search]::placeholder{color:#a89e8a;font-style:italic}
 
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 4px}
+.chips:empty{display:none}
 .chip{
-  font:inherit;font-size:12px;letter-spacing:.06em;text-transform:lowercase;
+  font:inherit;font-size:12px;letter-spacing:.06em;
   color:var(--faint);background:transparent;border:1px solid var(--line);
   border-radius:999px;padding:4px 11px;cursor:pointer;transition:.15s
 }
@@ -47,7 +47,7 @@ input[type=search]::placeholder{color:#a89e8a;font-style:italic}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 
 ol.list{list-style:none;margin:6px 0 0;padding:0}
-li.entry{padding:20px 0;border-bottom:1px solid var(--line);display:block}
+li.entry{padding:20px 0;border-bottom:1px solid var(--line)}
 li.entry:last-child{border-bottom:0}
 .titlerow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 a.title{
@@ -57,8 +57,8 @@ a.title{
 a.title:hover{color:var(--rust);border-bottom-color:var(--rust)}
 .domain{font-size:12.5px;color:var(--faint);letter-spacing:.04em}
 .note{margin:7px 0 0;color:#3c362c;font-size:15.5px}
-.meta{margin:9px 0 0;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:#948a74}
-.meta .tag{color:var(--rust);letter-spacing:.13em}
+.meta{margin:9px 0 0;display:flex;gap:9px;align-items:baseline;flex-wrap:wrap;font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:#948a74}
+.meta .tag{color:var(--rust)}
 .meta .dot{color:var(--line)}
 
 .empty{padding:40px 0;color:var(--faint);font-style:italic}
@@ -91,36 +91,34 @@ footer a{color:var(--rust)}
 <div class="chips" id="chips"></div>
 
 <ol class="list" id="list"></ol>
-<p class="empty" id="empty" hidden>Nothing on the shelf matches that.</p>
+<p class="empty" id="empty" hidden></p>
 
 <footer>
-  Kept in <a href="https://github.com/funferall/links">links.js</a> — say “save this” to Thoth in Discord and it lands here.
+  Kept in <a href="https://github.com/funferall/links/blob/main/links.json">links.json</a> — say “save this” to Thoth in Discord and it lands here.
 </footer>
 </div>
 
-<script src="links.js"></script>
 <script>
 (function(){
-  var all = window.LINKS || [];
   var q = document.getElementById('q'),
       listEl = document.getElementById('list'),
       chipsEl = document.getElementById('chips'),
       countEl = document.getElementById('count'),
       emptyEl = document.getElementById('empty'),
-      tag = '';
+      tag = '', all = [];
 
-  all.sort(function(a,b){ return (b.added||'').localeCompare(a.added||''); });
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return '&#'+c.charCodeAt(0)+';';}); }
 
   function tagsOf(){
-    var s = {};
-    all.forEach(function(e){ (e.tags||[]).forEach(function(t){ s[t]=(s[t]||0)+1; }); });
-    return Object.keys(s).sort(function(a,b){ return s[b]-s[a] || a.localeCompare(b); });
+    var seen = {};
+    all.forEach(function(e){ (e.tags||[]).forEach(function(t){ seen[t]=(seen[t]||0)+1; }); });
+    return Object.keys(seen).sort(function(a,b){ return seen[b]-seen[a] || a.localeCompare(b); });
   }
 
   function buildChips(){
     var tags = tagsOf();
-    if(tags.length < 2) return; // no chip row for a one-link shelf
     chipsEl.innerHTML = '';
+    if(tags.length < 2) return;
     [''].concat(tags).forEach(function(t){
       var b = document.createElement('button');
       b.className = 'chip'; b.type = 'button';
@@ -130,8 +128,6 @@ footer a{color:var(--rust)}
       chipsEl.appendChild(b);
     });
   }
-
-  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return '&#'+c.charCodeAt(0)+';';}); }
 
   function render(){
     var term = q.value.trim().toLowerCase();
@@ -143,7 +139,8 @@ footer a{color:var(--rust)}
     });
 
     listEl.innerHTML = shown.map(function(e){
-      var meta = (e.tags||[]).map(function(t){ return '<span class="tag">'+esc(t)+'</span>'; }).join('<span class="dot">·</span>');
+      var meta = (e.tags||[]).map(function(t){ return '<span class="tag">'+esc(t)+'</span>'; })
+                  .join('<span class="dot">·</span>');
       var date = e.added ? '<span class="dot">·</span><span>kept '+esc(e.added)+'</span>' : '';
       return '<li class="entry">'
         + '<div class="titlerow"><a class="title" href="'+esc(e.url)+'" target="_blank" rel="noopener">'+esc(e.title)+'</a>'
@@ -153,9 +150,13 @@ footer a{color:var(--rust)}
         + '</li>';
     }).join('');
 
-    countEl.textContent = all.length + (all.length === 1 ? ' link' : ' links');
+    countEl.textContent = !all.length ? '' :
+      (shown.length === all.length ? all.length + (all.length === 1 ? ' link' : ' links')
+                                   : shown.length + ' of ' + all.length);
     emptyEl.hidden = shown.length > 0;
-    document.querySelectorAll('.chip').forEach(function(b,i){
+    if(!shown.length) emptyEl.textContent = all.length ? 'Nothing on the shelf matches that.' : 'The shelf is empty.';
+
+    Array.prototype.forEach.call(chipsEl.children, function(b,i){
       var val = i === 0 ? '' : b.textContent;
       b.setAttribute('aria-pressed', String(val === tag));
     });
@@ -164,11 +165,18 @@ footer a{color:var(--rust)}
   q.addEventListener('input', render);
   document.addEventListener('keydown', function(e){
     if(e.key === '/' && document.activeElement !== q){ e.preventDefault(); q.focus(); }
-    if(e.key === 'Escape' && document.activeElement === q){ q.value=''; render(); q.blur(); }
+    if(e.key === 'Escape' && document.activeElement === q){ q.value = ''; render(); q.blur(); }
   });
 
-  buildChips();
-  render();
+  fetch('links.json?t=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(data){ all = (data.links || data || []).slice(); })
+    .catch(function(){ all = []; })
+    .then(function(){
+      all.sort(function(a,b){ return (b.added||'').localeCompare(a.added||''); });
+      buildChips();
+      render();
+    });
 })();
 </script>
 </body>
