@@ -1,6 +1,15 @@
 {
-  "updated": "2026-11-05T05:16:00Z",
+  "updated": "2026-11-06T03:10:00Z",
   "links": [
+    {
+      "id": "pioneers-of-soviet-computing",
+      "url": "https://sigcis.org/pioneers-of-soviet-computing/",
+      "title": "Pioneers of Soviet Computing",
+      "domain": "sigcis.org",
+      "note": "Boris N. Malinovsky, 2010 second edition, 201 pp, free PDF (CC BY-ND) via SIGCIS — the Society for the History of Technology's computing group. The English version of his Russian “History of Computing in Personalities”: part technical history, part memoir, and the only first-person account of computing's birth in Russia, Ukraine and Belarus. Follows Lebedev, Glushkov, Brusentsov and Brook from the end of the war onward, with the machines as the spine: MESM and BESM, the Setun ternary computer, the Elbrus series, and the long, politically ugly effort to mass-produce the ES line by copying the IBM 360. Worth it for the argument underneath — how a political system that could build original machines also throttled them.",
+      "tags": ["computing history", "soviet union", "books", "reading"],
+      "added": "2026-11-06"
+    },
     {
       "id": "sankai-juku",
       "url": "https://en.wikipedia.org/wiki/Sankai_Juku",
